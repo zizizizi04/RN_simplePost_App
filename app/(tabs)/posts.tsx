@@ -1,18 +1,27 @@
+import { useEffect, useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function posts() {
-  const posts: { id: number; title: string }[] = [
-    { id: 1, title: "게시글1" },
-    { id: 2, title: "게시글2" },
-    { id: 3, title: "게시글3" },
-    { id: 4, title: "게시글4" },
-    { id: 5, title: "게시글5" },
-    { id: 6, title: "게시글6" },
-    { id: 7, title: "게시글7" },
-    { id: 8, title: "게시글8" },
-    { id: 9, title: "게시글9" },
-    { id: 10, title: "게시글10" },
-  ];
+  const [posts, setPosts] = useState<
+    { userId: number; id: number; title: string; body: string }[]
+  >([]);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/posts"
+      );
+
+      const data = await response.json();
+      setPosts(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.postContainer}>
@@ -20,7 +29,10 @@ export default function posts() {
         data={posts}
         contentContainerStyle={styles.listWrap}
         renderItem={({ item }) => (
-          <Text style={styles.postItem}>{item.title}</Text>
+          <View style={styles.postItem}>
+            <Text style={styles.postId}>{item.id}번 게시물</Text>
+            <Text style={styles.postTitle}>{item.title}</Text>
+          </View>
         )}
         keyExtractor={(item) => item.id.toString()}
       />
@@ -55,5 +67,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     height: 100,
+  },
+  postId: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  postTitle: {
+    fontSize: 16,
+    marginTop: 5,
   },
 });
