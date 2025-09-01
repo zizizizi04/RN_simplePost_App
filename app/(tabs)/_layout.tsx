@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 
 export default function TabLayout() {
+  const router = useRouter();
+
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
@@ -15,6 +17,9 @@ export default function TabLayout() {
               color={focused ? "black" : "gray"}
             />
           ),
+          tabBarLabelStyle: {
+            fontSize: 13,
+          },
         }}
       />
       <Tabs.Screen
@@ -24,6 +29,9 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <Ionicons name="add" size={24} color={focused ? "black" : "gray"} />
           ),
+          tabBarLabelStyle: {
+            fontSize: 13,
+          },
         }}
       />
       <Tabs.Screen
@@ -37,6 +45,16 @@ export default function TabLayout() {
               color={focused ? "black" : "gray"}
             />
           ),
+          tabBarLabelStyle: {
+            fontSize: 13,
+          },
+        }}
+        listeners={{
+          // 탭을 눌렀을 때의 동작을 정의
+          tabPress: (e) => {
+            e.preventDefault();
+            router.navigate("/(tabs)/posts/page");
+          },
         }}
       />
     </Tabs>
