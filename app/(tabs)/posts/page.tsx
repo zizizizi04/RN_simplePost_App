@@ -34,7 +34,7 @@ export default function posts() {
             <Text style={styles.postId}>{item.id}번 게시물</Text>
             <Link
               href={{
-                pathname: `/posts/[id]/post`,
+                pathname: `/posts/[id]/post`, // [id]: 동적 라우팅
                 params: {
                   userId: item.userId,
                   id: item.id,
