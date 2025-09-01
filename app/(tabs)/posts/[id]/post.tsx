@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, Text, View } from "react-native";
 
 export default function Post() {
   const { userId, id, title, body } = useLocalSearchParams();
+
   return (
     <View style={styles.postContainer}>
       <View style={styles.postInner}>
