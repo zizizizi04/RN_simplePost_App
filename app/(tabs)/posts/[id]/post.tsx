@@ -1,4 +1,4 @@
-import type { PostWithContentDto } from "@/types/post";
+import { PostWithContentDto } from "@/types/post";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";

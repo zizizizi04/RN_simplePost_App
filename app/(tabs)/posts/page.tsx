@@ -1,4 +1,4 @@
-import type { PostDto } from "@/types/post";
+import { PostDto } from "@/types/post";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
