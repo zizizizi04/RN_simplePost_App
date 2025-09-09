@@ -1,19 +1,41 @@
+import { db } from "@/firebase/config";
 import { PostDto } from "@/types/post";
 import { Link } from "expo-router";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function posts() {
-  const [posts, setPosts] = useState<PostDto[]>([]);
+  const [posts, setPosts] = useState<PostDto[] | null>(null);
 
   const fetchPosts = async () => {
+    // try {
+    //   const response = await fetch(
+    //     "https://jsonplaceholder.typicode.com/posts"
+    //   );
+
+    //   const data = await response.json();
+
     try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/posts"
+      const postsQuery = query(
+        collection(db, "post"), // post 테이블 조회
+        orderBy("postId", "desc") // id를 기준으로 내림차순 정렬
       );
 
-      const data = await response.json();
-      setPosts(data);
+      const postsSnapshot = await getDocs(postsQuery);
+
+      const postsData = postsSnapshot.docs.map((doc) => {
+        const { postId, createDate, title, content } = doc.data();
+        return {
+          id: doc.id,
+          postId: postId,
+          createDate: createDate,
+          title: title,
+          content: content,
+        };
+      });
+
+      setPosts(postsData);
     } catch (err) {
       console.log(err);
     }
@@ -30,15 +52,13 @@ export default function posts() {
         contentContainerStyle={styles.listWrap}
         renderItem={({ item }) => (
           <View style={styles.postItem}>
-            <Text style={styles.postId}>{item.id}번 게시물</Text>
+            <Text style={styles.postId}>{item.postId}번 게시물</Text>
             <Link
               href={{
                 pathname: `/posts/[id]/post`, // [id]: 동적 라우팅
                 params: {
-                  userId: item.userId,
                   id: item.id,
-                  title: item.title,
-                  body: item.body,
+                  postId: item.postId,
                 },
               }}
             >

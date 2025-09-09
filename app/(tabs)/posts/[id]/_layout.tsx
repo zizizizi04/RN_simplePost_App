@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 
 export default function PostLayout() {
-  const { id } = useLocalSearchParams();
+  const { postId } = useLocalSearchParams();
 
-  return <Stack screenOptions={{ title: `${id}번 게시글` }} />;
+  return <Stack screenOptions={{ title: `${postId}번 게시글` }} />;
 }

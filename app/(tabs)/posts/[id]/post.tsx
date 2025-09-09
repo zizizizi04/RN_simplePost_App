@@ -1,20 +1,37 @@
+import { db } from "@/firebase/config";
 import { PostWithContentDto } from "@/types/post";
 import { useLocalSearchParams } from "expo-router";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 
 export default function Post() {
-  const { userId, id, title, body } = useLocalSearchParams();
+  // useLocalSearchParams: 동적 라우팅을 위한 파라미터를 가져오는 함수
+  // 파라미터값을 문자열로 취급
+  const { postId } = useLocalSearchParams();
 
   const [post, setPost] = useState<PostWithContentDto | null>(null);
 
+  const fetchPost = async () => {
+    try {
+      const postsQuery = query(
+        collection(db, "post"), // post 테이블 조회
+        where("postId", "==", Number(postId))
+      );
+
+      const postSnapshot = await getDocs(postsQuery);
+
+      const post = postSnapshot.docs[0].data();
+
+      // post as PostWithContentDto : 타입 캐스팅
+      setPost(post as PostWithContentDto);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    setPost({
-      userId: Number(userId),
-      id: Number(id),
-      title: title as string, // title as string: 타입스크립트에서 타입을 강제로 변경
-      body: body as string,
-    });
+    fetchPost();
   }, []);
 
   return (
@@ -25,7 +42,7 @@ export default function Post() {
           <Text style={styles.postTitleContetnt}>{post?.title}</Text>
         </View>
         <View style={styles.postBodyContainer}>
-          <Text style={styles.postBody}>{post?.body}</Text>
+          <Text style={styles.postBody}>{post?.content}</Text>
         </View>
       </View>
     </View>
