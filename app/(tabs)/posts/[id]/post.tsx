@@ -1,6 +1,11 @@
 import { db } from "@/firebase/config";
 import { PostWithContentDto } from "@/types/post";
-import { Feather, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import {
+  Feather,
+  FontAwesome6,
+  MaterialCommunityIcons,
+  Octicons,
+} from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -63,7 +68,17 @@ export default function Post() {
           </View>
         </View>
         <View style={styles.postContentContainer}>
-          <View style={styles.contentHeader}></View>
+          <View style={styles.contentHeader}>
+            <View style={styles.profileImage}>
+              <Pressable onPress={() => console.log("MyPage")}>
+                <FontAwesome6 name="user-circle" size={30} color="black" />
+              </Pressable>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileNickname}>닉네임</Text>
+              <Text style={styles.profileDate}>2025년 9월 1일</Text>
+            </View>
+          </View>
           <View style={styles.contentBody}>
             <View style={styles.contentTitleWrap}></View>
             <Text style={styles.postBody}>{post?.title}</Text>
@@ -119,12 +134,25 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   postContentContainer: {
-    margin: 5,
+    padding: 10,
   },
   postBody: {
     fontSize: 16,
     marginTop: 5,
   },
-  contentHeader: {},
+  contentHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 5,
+    gap: 10,
+  },
+  profileImage: {},
+  profileInfo: {},
+  profileNickname: {
+    fontWeight: "bold",
+  },
+  profileDate: {
+    fontSize: 13,
+  },
   contentBody: {},
 });
