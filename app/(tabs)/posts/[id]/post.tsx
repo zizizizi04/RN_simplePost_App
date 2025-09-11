@@ -7,7 +7,7 @@ import {
   Octicons,
 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -16,23 +16,32 @@ export default function Post() {
 
   // useLocalSearchParams: 동적 라우팅을 위한 파라미터를 가져오는 함수
   // 파라미터값을 문자열로 취급
-  const { postId } = useLocalSearchParams();
+  const { id, postId } = useLocalSearchParams();
 
   const [post, setPost] = useState<PostWithContentDto | null>(null);
 
   const fetchPost = async () => {
     try {
-      const postsQuery = query(
-        collection(db, "post"), // post 테이블 조회
-        where("postId", "==", Number(postId))
-      );
+      // const postsQuery = query(
+      //   collection(db, "post"), // post 테이블 조회
+      //   where("postId", "==", Number(postId))
+      // );
 
-      const postSnapshot = await getDocs(postsQuery);
+      // const postSnapshot = await getDocs(postsQuery);
 
-      const post = postSnapshot.docs[0].data();
+      // const post = postSnapshot.docs[0].data();
 
       // post as PostWithContentDto : 타입 캐스팅
-      setPost(post as PostWithContentDto);
+      //setPost(post as PostWithContentDto);
+
+      // firebase는 문서 참조 방식
+      const postRef = doc(db, "post", id as string);
+      const postSnap = await getDoc(postRef);
+
+      if (postSnap.exists()) {
+        const post = postSnap.data() as PostWithContentDto;
+        setPost(post);
+      }
     } catch (err) {
       console.log(err);
     }
