@@ -86,6 +86,21 @@ export default function Post() {
             <View style={styles.contentBodyWrap}>
               <Text style={styles.postBody}>{post?.content}</Text>
             </View>
+            <View style={styles.contentFooter}>
+              <Pressable
+                onPress={() => console.log("recommend")}
+                style={styles.contentFooterItem}
+              >
+                <Feather name="thumbs-up" size={18} color="black" />
+                <Text>추천</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => console.log("save")}
+                style={styles.contentFooterItem}
+              >
+                <Text>저장</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </View>
@@ -170,6 +185,23 @@ const styles = StyleSheet.create({
   },
   contentBodyWrap: {
     flex: 1,
+  },
+  contentFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+  },
+  contentFooterItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    fontSize: 13,
   },
   postBody: {
     flex: 1,
