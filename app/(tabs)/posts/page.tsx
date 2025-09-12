@@ -7,6 +7,7 @@ import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function posts() {
   const [posts, setPosts] = useState<PostDto[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   const fetchPosts = async () => {
     // try {
@@ -34,16 +35,25 @@ export default function posts() {
           content: content,
         };
       });
-
       setPosts(postsData);
     } catch (err) {
-      console.log(err);
+      console.log("오류 발생: " + err);
+      setErr("오류 발생");
     }
   };
 
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // 가드 클로즈 패턴
+  if (!posts) {
+    return (
+      <View style={styles.postContainer}>
+        <Text style={styles.loadingText}>로딩중...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.postContainer}>
@@ -78,6 +88,13 @@ const styles = StyleSheet.create({
   postContainer: {
     flex: 1,
     alignItems: "center",
+  },
+  loadingText: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 20,
+    fontWeight: "bold",
   },
   listWrap: {
     width: WIDTH - 16,

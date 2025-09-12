@@ -19,6 +19,7 @@ export default function Post() {
   const { id, postId } = useLocalSearchParams();
 
   const [post, setPost] = useState<PostWithContentDto | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   const fetchPost = async () => {
     try {
@@ -43,13 +44,23 @@ export default function Post() {
         setPost(post);
       }
     } catch (err) {
-      console.log(err);
+      console.log("오류 발생: " + err);
+      setErr("오류 발생");
     }
   };
 
   useEffect(() => {
     fetchPost();
   }, []);
+
+  // 가드 클로즈 패턴
+  if (!post) {
+    return (
+      <View style={styles.postContainer}>
+        <Text style={styles.loadingText}>로딩중...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.postContainer}>
@@ -141,6 +152,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 60,
     gap: 5,
+  },
+  loadingText: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 20,
+    fontWeight: "bold",
   },
   postInner: {
     width: WIDTH,
