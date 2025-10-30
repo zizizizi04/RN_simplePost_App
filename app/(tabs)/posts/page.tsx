@@ -20,16 +20,15 @@ export default function posts() {
     try {
       const postsQuery = query(
         collection(db, "post"), // post 테이블 조회
-        orderBy("postId", "desc") // id를 기준으로 내림차순 정렬
+        orderBy("createDate", "desc") // id를 기준으로 내림차순 정렬
       );
 
       const postsSnapshot = await getDocs(postsQuery);
 
       const postsData = postsSnapshot.docs.map((doc) => {
-        const { postId, createDate, title, content } = doc.data();
+        const { createDate, title, content } = doc.data();
         return {
           id: doc.id,
-          postId: postId,
           createDate: createDate,
           title: title,
           content: content,
@@ -62,13 +61,11 @@ export default function posts() {
         contentContainerStyle={styles.listWrap}
         renderItem={({ item }) => (
           <View style={styles.postItem}>
-            <Text style={styles.postId}>{item.postId}번 게시물</Text>
             <Link
               href={{
                 pathname: `/posts/[id]/post`, // [id]: 동적 라우팅
                 params: {
                   id: item.id,
-                  postId: item.postId,
                 },
               }}
             >
