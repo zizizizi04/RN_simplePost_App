@@ -1,7 +1,13 @@
 import { db } from "@/firebase/config";
 import { PostDto } from "@/types/post";
 import { Link } from "expo-router";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 
@@ -20,21 +26,37 @@ export default function posts() {
     try {
       const postsQuery = query(
         collection(db, "post"), // post 테이블 조회
-        orderBy("createDate", "desc") // id를 기준으로 내림차순 정렬
+        orderBy("createDate", "desc") // createDate를 기준으로 내림차순 정렬
       );
 
-      const postsSnapshot = await getDocs(postsQuery);
+      // const postsSnapshot = await getDocs(postsQuery);
 
-      const postsData = postsSnapshot.docs.map((doc) => {
-        const { createDate, title, content } = doc.data();
-        return {
-          id: doc.id,
-          createDate: createDate,
-          title: title,
-          content: content,
-        };
+      // const postsData = postsSnapshot.docs.map((doc) => {
+      //   const { createDate, title, content } = doc.data();
+      //   return {
+      //     id: doc.id,
+      //     createDate: createDate,
+      //     title: title,
+      //     content: content,
+      //   };
+      // });
+
+      // await onSnapshot: post 컬렉션의 데이터를 실시간으로 가져옴
+      //snapShop: Firestore에서 가져온 데이터
+      await onSnapshot(postsQuery, (snapShop) => {
+        const postsData = snapShop.docs.map((doc) => {
+          const { createDate, title, content } = doc.data();
+
+          return {
+            id: doc.id,
+            createDate: createDate as Timestamp,
+            title: title,
+            content: content,
+          };
+        });
+
+        setPosts(postsData);
       });
-      setPosts(postsData);
     } catch (err) {
       console.log("오류 발생: " + err);
       setErr("오류 발생");

@@ -1,6 +1,8 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface PostDto {
   id: string;
-  createDate: Date;
+  createDate: Timestamp;
   title: string;
   content: string;
 }

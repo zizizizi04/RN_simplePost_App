@@ -1,11 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, usePathname, useRouter } from "expo-router";
 
 export default function TabLayout() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const hideTabRoutes = ["/write"];
+  const isHidden = hideTabRoutes.some((route) => pathname.startsWith(route));
 
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: isHidden ? { display: "none" } : { display: "flex" },
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
