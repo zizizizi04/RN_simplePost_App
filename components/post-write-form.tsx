@@ -1,6 +1,11 @@
 import { Ionicons } from "@expo/vector-icons"; // 아이콘용
-import React, { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
+  Animated,
+  Keyboard,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StatusBar,
@@ -11,17 +16,102 @@ import {
   View,
 } from "react-native";
 
+const useKeyboardOffsetHook = () => {
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const keyboardOffset = useRef(new Animated.Value(0)).current;
+
+  // 키보드가 나타났을 때
+  const keyboardDidShowListener = (e: any) => {
+    const { height } = e.endCoordinates;
+    setKeyboardHeight(height);
+    setKeyboardVisible(true);
+
+    Animated.timing(keyboardOffset, {
+      toValue: -height,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // 키보드가 사라졌을 때
+  const keyboardDidHideListener = () => {
+    setKeyboardHeight(0);
+    setKeyboardVisible(false);
+
+    Animated.timing(keyboardOffset, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    const keyboardShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      keyboardDidShowListener
+    );
+
+    const keyboardHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      keyboardDidHideListener
+    );
+
+    return () => {
+      keyboardShowListener.remove();
+      keyboardHideListener.remove();
+    };
+  }, []);
+
+  return { keyboardHeight, keyboardVisible, keyboardOffset };
+};
+
 export default function PostWriteForm() {
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  useFocusEffect(
+    useCallback(() => {
+      setTitle("");
+      setContent("");
+    }, [])
+  );
+
+  const { keyboardHeight, keyboardVisible, keyboardOffset } =
+    useKeyboardOffsetHook();
+
+  const handleClose = () => {
+    if (title || content) {
+      Alert.alert("작성을 취소하시겠습니까?", "", [
+        {
+          text: "확인",
+          onPress: () => router.navigate("/(tabs)/posts/page"),
+        },
+        {
+          text: "취소",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ]);
+      return;
+    }
+
+    router.navigate("/(tabs)/posts/page");
+  };
+
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <View style={styles.statusBar}></View>
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleClose}>
           <Ionicons name="close" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.doneButton}>
@@ -58,7 +148,14 @@ export default function PostWriteForm() {
       </ScrollView>
 
       {/* 하단 메뉴 */}
-      <View style={styles.bottomMenu}>
+      <Animated.View
+        style={[
+          styles.bottomMenu,
+          {
+            transform: [{ translateY: keyboardOffset }],
+          },
+        ]}
+      >
         <TouchableOpacity style={styles.bottomMenuButton}>
           <Ionicons name="image-outline" size={24} color="white" />
           <Text style={styles.bottomMenuText}>사진</Text>
@@ -79,8 +176,8 @@ export default function PostWriteForm() {
           <Ionicons name="pricetag-outline" size={24} color="white" />
           <Text style={styles.bottomMenuText}>태그</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -126,7 +223,7 @@ const styles = StyleSheet.create({
     borderColor: "#333",
   },
   contentContainer: {
-    flex: 1,
+    flexGrow: 1,
     marginTop: 12,
     marginBottom: 60, // 하단 메뉴 공간 확보
   },
