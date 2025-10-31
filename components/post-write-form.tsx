@@ -1,5 +1,7 @@
-import { Ionicons } from "@expo/vector-icons"; // 아이콘용
+import { db } from "@/firebase/config";
+import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons"; // 아이콘용
 import { useFocusEffect, useRouter } from "expo-router";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -70,6 +72,7 @@ const useKeyboardOffsetHook = () => {
 export default function PostWriteForm() {
   const router = useRouter();
 
+  const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -116,13 +119,27 @@ export default function PostWriteForm() {
     return true;
   }, [title, content]);
 
-  const onSubmit = () => {
+  const onSubmit = useCallback(async () => {
     if (!validateForm()) return;
 
-    setTitle("");
-    setContent("");
-    console.log("게시물 작성이 완료되었습니다.");
-  };
+    try {
+      await addDoc(collection(db, "post"), {
+        title: title,
+        content: content,
+        createDate: Timestamp.now(),
+      });
+
+      setTitle("");
+      setContent("");
+      setError(null);
+      Alert.alert("게시물이 등록되었습니다.");
+      router.navigate("/(tabs)/posts/page");
+    } catch (error) {
+      console.log("오류 발생 : " + error);
+      Alert.alert("게시물 등록에 실패했습니다.");
+      setError("오류 발생");
+    }
+  }, [title, content, validateForm]);
 
   const onTopicSelect = useCallback(() => {
     console.log("주제 선택");
@@ -216,15 +233,11 @@ export default function PostWriteForm() {
           style={styles.bottomMenuButton}
           onPress={onVoteSelect}
         >
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={24}
-            color="white"
-          />
+          <MaterialIcons name="how-to-vote" size={24} color="white" />
           <Text style={styles.bottomMenuText}>투표</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomMenuButton} onPress={onTagSelect}>
-          <Ionicons name="pricetag-outline" size={24} color="white" />
+          <FontAwesome name="hashtag" size={24} color="white" />
           <Text style={styles.bottomMenuText}>태그</Text>
         </TouchableOpacity>
       </Animated.View>
