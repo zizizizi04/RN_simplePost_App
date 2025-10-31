@@ -1,4 +1,4 @@
-import WelcomeScreen from "@/components/screens/WelcomeScreen";
+import OnboardingScreen from "@/components/screens/OnboardingScreen";
 import { auth } from "@/firebase/config";
 // ProtectedRoute: 로그인 하지 않은 사용자가 처음 마주하는 화면
 
@@ -13,7 +13,7 @@ export default function ProtectedRoute({
   const user = auth.currentUser;
 
   if (!user) {
-    return <WelcomeScreen />;
+    return <OnboardingScreen />;
   }
 
   return <>{children}</>;
